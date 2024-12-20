@@ -149,7 +149,7 @@ def process_csv(file_path, source):
                                         if row[2] == 'SWEDD':
                                             move_file_from_to(path,'ppmi_patient_SWEDD_60_70', file)
                                         else:
-                                            move_file_from_to(path,'ppmi_patient_prodomal_60_70', file)
+                                            move_file_from_to(path,'ppmi_patient_prodromal_60_70', file)
                                 else:
                                     if row[2] == 'PD':
                                         move_file_from_to(path,'ppmi_patient_PD_70+', file)
@@ -157,7 +157,7 @@ def process_csv(file_path, source):
                                         if row[2] == 'SWEDD':
                                             move_file_from_to(path,'ppmi_patient_SWEDD_70+', file)
                                         else:
-                                            move_file_from_to(path,'ppmi_patient_prodomal_70+', file)
+                                            move_file_from_to(path,'ppmi_patient_prodromal_70+', file)
     except FileNotFoundError:
         print(f"The file at '{file_path}' does not exist.")
     except Exception as e:
