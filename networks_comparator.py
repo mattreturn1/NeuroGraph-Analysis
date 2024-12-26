@@ -1,93 +1,105 @@
-import data_extractor
-from scipy.stats import ttest_ind
 from pathlib import Path
+import pandas as pd
 
 
-def compare_networks_metrics(directory_path, *directories_to_compare):
+def load_metrics(directory_path, group_name):
     """
-    Compare metrics between networks in the given directories using t-tests.
+    Load graph and node metrics for a specific group.
+
+    Args:
+        directory_path (Path): Path to the directory containing metrics files.
+        group_name (str): Name of the group (e.g., "control", "pd").
+
+    Returns:
+        dict: Graph and node metrics as DataFrames.
+    """
+    graph_metrics_file = directory_path / group_name / "stats" / "graph_statistics.csv"
+    node_metrics_file = directory_path / group_name / "stats" / "node_statistics.csv"
+
+    graph_metrics = pd.read_csv(graph_metrics_file)
+    node_metrics = pd.read_csv(node_metrics_file)
+    return {"graph": graph_metrics, "node": node_metrics}
+
+
+def calculate_differences(control_metrics, patient_metrics, metric_type):
+    """
+    Calculate differences for a specific metric type (graph or node) between groups.
+
+    Args:
+        control_metrics (pd.DataFrame): Metrics for the control group.
+        patient_metrics (pd.DataFrame): Metrics for the patient group.
+        metric_type (str): Type of metric ("graph" or "node").
+
+    Returns:
+        pd.DataFrame: Differences in metrics between groups.
+    """
+    differences = patient_metrics.copy()
+    for column in control_metrics.columns:
+        if column not in ["Node", "Metric"]:
+            differences[column] = abs(patient_metrics[column] - control_metrics[column])
+    differences["group"] = f"diff_{metric_type}"
+    return differences
+
+
+def compare_groups(directory_path, groups, output_path=None):
+    """
+    Compare metrics between control and patient groups.
+
+    Args:
+        directory_path (Path): Path to the base directory containing group metrics.
+        groups (list): List of groups to compare (e.g., ["control", "pd"]).
+        output_path (Path): Optional path to save results.
+
+    Returns:
+        dict: Differences in graph and node metrics.
     """
     directory_path = Path(directory_path)
+    metrics = {group: load_metrics(directory_path, group) for group in groups}
 
-    # Dictionaries to store statistics
-    control_statistics = {}
-    patient_statistics = {}
+    control_metrics = metrics["control"]
+    results = {}
 
-    # Extract metrics for all directories
-    for directory in directories_to_compare:
-        network_statistics, node_statistics = data_extractor.extract_metrics(directory_path / directory)
-        if directory == "control":
-            control_statistics["control"] = [network_statistics, node_statistics]
-        else:
-            patient_statistics[directory] = [network_statistics, node_statistics]
+    for group in groups:
+        if group == "control":
+            continue
 
-    # Dictionaries to store differences
-    graph_differences = {}
-    node_differences = {}
+        patient_metrics = metrics[group]
+        graph_diff = calculate_differences(
+            control_metrics["graph"], patient_metrics["graph"], "graph"
+        )
+        node_diff = calculate_differences(
+            control_metrics["node"], patient_metrics["node"], "node"
+        )
 
-    # Compare metrics
-    for case in patient_statistics.keys():
-        graph_differences[case] = {}
-        node_differences[case] = {}
+        results[group] = {"graph_diff": graph_diff, "node_diff": node_diff}
 
-        for metric in ["closeness", "clustering", "degree"]:
-            # Global metrics comparison
-            control = control_statistics["control"][0][metric]["mean"]
-            patient = patient_statistics[case][0][metric]["mean"]
+        # Save results to CSV if output_path is specified
+        if output_path:
+            save_path = Path(output_path)
+            save_path.mkdir(parents=True, exist_ok=True)
+            graph_diff.to_csv(save_path / "graph_differences.csv", index=False)
+            node_diff.to_csv(save_path / "node_differences.csv", index=False)
 
-            mean_difference = abs(control - patient)
-            t_stat, p_value = ttest_ind([control], [patient])  # Wrap in lists for compatibility
-
-            graph_differences[case][metric] = {
-                "mean difference": mean_difference,
-                "t_stat": t_stat,
-                "p_value": p_value
-            }
-
-            # Node-level metrics comparison
-            node_differences[case][metric] = []
-            for i in range(116):
-                control = control_statistics["control"][1][metric]["mean"][i]
-                patient = patient_statistics[case][1][metric]["mean"][i]
-
-                mean_difference = abs(control - patient)
-                t_stat, p_value = ttest_ind([control], [patient])  # Wrap in lists for compatibility
-
-                node_differences[case][metric].append({
-                    "node": i,
-                    "mean difference": mean_difference,
-                    "t_stat": t_stat,
-                    "p_value": p_value
-                })
-
-    # Estrai i 5 nodi con differenze maggiori per ciascun caso e metrica
-    top_nodes = extract_top_differences(node_differences)
-
-    # Print results
-    print("Differenze a livello di grafo:", graph_differences)
-    print("\n------------------------------------\n")
-    print("Differenze a livello di nodo:", node_differences)
-    print("\n------------------------------------\n")
-    print("Top 5 nodi con differenze maggiori:", top_nodes)
+    return results
 
 
-def extract_top_differences(node_differences, top_n=5):
+def summarize_results(results, top_n=5):
     """
-    Estrai i top N nodi con le differenze maggiori per ogni caso e metrica.
+    Summarize top N differences in node metrics.
+
+    Args:
+        results (dict): Results from compare_groups.
+        top_n (int): Number of top nodes to summarize.
+
+    Returns:
+        dict: Summary of top node differences for each group.
     """
-    top_nodes = {}
-    for case, metrics in node_differences.items():
-        top_nodes[case] = {}
-        for metric, nodes in metrics.items():
-            sorted_nodes = sorted(nodes, key=lambda x: x["mean difference"], reverse=True)
-            top_nodes[case][metric] = sorted_nodes[:top_n]
-    return top_nodes
+    summary = {}
+    for group, diffs in results.items():
+        top_nodes = diffs["node_diff"].nlargest(top_n, "mean difference")
+        summary[group] = top_nodes
+    return summary
 
 
-# Example usage
-directory_path = "~/Documents/UniPd/Computer Engineering/Learning From Networks/abide_prova/12_18"
-directories_to_compare = ["control", "patient"]
-
-directory_path = Path(directory_path).expanduser()
-
-compare_networks_metrics(directory_path, *directories_to_compare)
+compare_groups("analysis/abide/11-", ["control", "patient"],
+               "analysis/abide/11-/comparison")
