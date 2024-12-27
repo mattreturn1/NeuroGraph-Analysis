@@ -1,170 +1,129 @@
 import shutil
-import os
-import csv
+from pathlib import Path
+import pandas as pd
+import logging
+
+# Configura il logger
+logging.basicConfig(
+    level=logging.DEBUG,  # Cambia in DEBUG per messaggi più dettagliati
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("preprocessing.log"),  # Salva in un file
+        logging.StreamHandler()  # Mostra in console
+    ]
+)
+
 
 def move_file_from_to(source_folder, destination_folder, filename):
-
-    if type(filename) != str:
-        return
-    if type(source_folder) != str:
+    if not isinstance(filename, str) or not isinstance(source_folder, str):
+        logging.warning("I parametri source_folder o filename non sono stringhe.")
         return
 
-    try:
-        source_file = os.path.join(source_folder, filename)
-    except PermissionError:
-        print('Permission denied. Please check your access rights.')
-    except Exception as e:
-        print(f'An error occurred in move: {e}')
-
-    if not os.path.exists(source_file):
-        print(f"The file '{filename}' does not exist in the source folder.")
+    source_file = Path(source_folder) / filename
+    if not source_file.exists():
+        logging.warning(f"File '{filename}' non trovato nella cartella '{source_folder}'.")
         return
 
-    try:
-        if not os.path.exists(destination_folder):
-            os.makedirs(destination_folder)
-    except PermissionError:
-        print('Permission denied. Please check your access rights.')
-    except Exception as e:
-        print(f'An error occurred in move: {e}')
+    destination_folder = Path(destination_folder)
+    destination_folder.mkdir(parents=True, exist_ok=True)
+    destination_file = destination_folder / filename
 
-    # Define the full path to the destination file
-    destination_file = os.path.join(destination_folder, filename)
-
-    # Move the file
     try:
-        shutil.move(source_file, destination_file)
-        print(f'File "{filename}" moved to {destination_folder}')
-    except PermissionError:
-        print('Permission denied. Please check your access rights.')
+        shutil.move(str(source_file), str(destination_file))
+        logging.info(f"File '{filename}' spostato in '{destination_folder}'.")
     except Exception as e:
-        print(f'An error occurred in move: {e}')
+        logging.error(f"Errore durante lo spostamento del file '{filename}': {e}")
 
 
 def find_folder_by_substring(substring, source):
     try:
-        # Iterate through all items in the parent folder
-        for item in os.listdir(source):
-            # Get the full path of the item
-            item_path = os.path.join(source, item)
-
-            # Check if the item is a directory and contains the substring
-            if os.path.isdir(item_path) and substring in item:
+        source_path = Path(source)
+        for item in source_path.iterdir():
+            if item.is_dir() and substring in item.name:
                 return item
-
-        # Return the list of found folder names
-
-    except FileNotFoundError:
-        print(f"The folder '{source}' does not exist.")
-        return
+        logging.warning(f"Nessuna cartella trovata con il sottostringa '{substring}' in '{source}'.")
     except Exception as e:
-        print(f"An error occurred in find_folder: {e}")
-        return
+        logging.error(f"Errore nella ricerca della cartella: {e}")
+
 
 def search_files_in_folder(folder_path):
-    # List all files in the folder
-    matched_files = ''
-    for root, dirs, files in os.walk(folder_path):
-        for file in files:
-            # Check if the substring is in the file name
-            if 'AAL116_correlation_matrix' in file:
-                return file
+    folder_path = Path(folder_path)
+    for file in folder_path.rglob('*'):
+        if 'AAL116_correlation_matrix' in file.name:
+            return file
+    logging.warning(f"Nessun file trovato in '{folder_path}' contenente 'AAL116_correlation_matrix'.")
 
 
 def process_csv(file_path, source):
-
     try:
-        # Open the CSV file for reading
-        with open(file_path, mode='r', newline='', encoding='utf-8') as file:
-            csv_reader = csv.reader(file)
+        # Carica i dati in un DataFrame
+        df = pd.read_csv(file_path)
+        logging.info(f"Caricato CSV: {file_path}")
 
-            # Skip the header row
-            next(csv_reader)
+        # Filtra solo le righe con 'fMRI' e separa i dati per controllo e malattia
+        df = df[df['Modality'] == 'fMRI']
+        df_control = df[df['Group'] == 'Control']
+        df_patient = df[df['Group'] != 'Control']
 
-            # Process each row
-            for row in csv_reader:
-                if row[6] == 'fMRI':
-                    if row[2] == 'Control':
-                        folder = find_folder_by_substring(row[1], source)
-                        path = str(source) +'/' + str(folder)
-                        file = search_files_in_folder(path)
+        for _, row in df_control.iterrows():
+            folder = find_folder_by_substring(str(row['Subject']), source)
+            if not folder:
+                continue
+            file = search_files_in_folder(folder)
 
-                        print(folder)
-                        print(path)
-                        print(file)
+            if source == 'abide':
+                age_group = get_age_group_abide(row['Age'])
+            else:
+                age_group = get_age_group_ppmi(row['Age'])
 
-                        if int(source == 'abide'):
-                            if int(row[4]) < 12:
-                                move_file_from_to(path,'abide_control_11-', file)
-                            else:
-                                if int(row[4]) < 18:
-                                    move_file_from_to(path, 'abide_control_12_17', file)
-                                else:
-                                    if int(row[4]) < 26:
-                                        move_file_from_to(path, 'abide_control_18_25', file)
-                                    else:
-                                        move_file_from_to(path, 'abide_control_25+', file)
-                        else:
-                            if int(row[4]) < 61:
-                                move_file_from_to(path,'ppmi_control_60-', file)
-                            else:
-                                if int(row[4]) < 71:
-                                    move_file_from_to(path,'ppmi_control_60_70', file)
-                                else:
-                                    move_file_from_to(path,'ppmi_control_70+', file)
-                    else:
-                        folder = find_folder_by_substring(row[1], source)
-                        path = str(source) + '/' + str(folder)
-                        file = search_files_in_folder(path)
+            if file:
+                move_file_from_to(str(folder), age_group + "/control", file.name)
 
-                        print(folder)
-                        print(path)
-                        print(file)
+        for _, row in df_patient.iterrows():
+            folder = find_folder_by_substring(str(row['Subject']), source)
+            if not folder:
+                continue
+            file = search_files_in_folder(folder)
 
-                        if int(source == 'abide'):
-                            if int(row[4]) < 12:
-                                move_file_from_to(path, 'abide_patient_11-', file)
-                            else:
-                                if int(row[4]) < 18:
-                                    move_file_from_to(path, 'abide_patient_12_17', file)
-                                else:
-                                    if int(row[4]) < 26:
-                                        move_file_from_to(path, 'abide_patient_18_25', file)
-                                    else:
-                                        move_file_from_to(path, 'abide_patient_25+', file)
-                        else:
-                            if int(row[4]) < 61:
-                                if row[2] == 'PD':
-                                    move_file_from_to(path,'ppmi_patient_PD_60-', file)
-                                else:
-                                    if row[2] == 'SWEDD':
-                                        move_file_from_to(path,'ppmi_patient_SWEDD_60-', file)
-                                    else:
-                                        move_file_from_to(path,'ppmi_patient_prodromal_60-', file)
-                            else:
-                                if int(row[4]) < 71:
-                                    if row[2] == 'PD':
-                                        move_file_from_to(path,'ppmi_patient_PD_60_70', file)
-                                    else:
-                                        if row[2] == 'SWEDD':
-                                            move_file_from_to(path,'ppmi_patient_SWEDD_60_70', file)
-                                        else:
-                                            move_file_from_to(path,'ppmi_patient_prodromal_60_70', file)
-                                else:
-                                    if row[2] == 'PD':
-                                        move_file_from_to(path,'ppmi_patient_PD_70+', file)
-                                    else:
-                                        if row[2] == 'SWEDD':
-                                            move_file_from_to(path,'ppmi_patient_SWEDD_70+', file)
-                                        else:
-                                            move_file_from_to(path,'ppmi_patient_prodromal_70+', file)
-    except FileNotFoundError:
-        print(f"The file at '{file_path}' does not exist.")
+            if source == 'abide':
+                age_group = get_age_group_abide(row['Age'], is_patient=True)
+            else:
+                age_group = get_age_group_ppmi(row['Age'], is_patient=True)
+
+            if file and source == "abide":
+                move_file_from_to(str(folder), age_group + "/patient", file.name)
+            elif file and source == "ppmi":
+                if row["Group"] == "PD":
+                    move_file_from_to(str(folder), age_group + "/pd", file.name)
+                elif row["Group"] == "Prodromal":
+                    move_file_from_to(str(folder), age_group + "/prodromal", file.name)
+                elif row["Group"] == "SWEDD":
+                    move_file_from_to(str(folder), age_group + "/swedd", file.name)
+
     except Exception as e:
-        print(f"An error occurred in process: {e}")
+        logging.error(f"Errore durante il processo CSV '{file_path}': {e}")
 
-# Example usage
-file_path = 'ABIDE_metadata.csv'
-process_csv(file_path, 'abide')
-file_path = 'PPMI_metadata.csv'
-process_csv(file_path, 'ppmi')
+
+# Funzioni di supporto per determinare le fasce di età
+def get_age_group_abide(age, is_patient=False):
+    if age < 12:
+        return '11-' if not is_patient else '11-'
+    elif age < 18:
+        return '12_17' if not is_patient else '12_17'
+    elif age < 26:
+        return '18_25' if not is_patient else '18_25'
+    else:
+        return '25+' if not is_patient else '25+'
+
+
+def get_age_group_ppmi(age, is_patient=False):
+    if age < 61:
+        return '60-' if not is_patient else '60-'
+    elif age < 71:
+        return '60_70' if not is_patient else '60_70'
+    else:
+        return '70+' if not is_patient else '70+'
+
+
+# Esempio d'uso
+process_csv('PPMI_metadata.csv', 'ppmi')
