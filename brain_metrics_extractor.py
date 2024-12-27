@@ -221,3 +221,6 @@ def create_directory(path):
 
 
 extract_metrics("ppmi/60_70/swedd")
+extract_metrics("ppmi/60_70/control")
+extract_metrics("ppmi/60_70/pd")
+extract_metrics("ppmi/60_70/prodromal")
