@@ -218,3 +218,6 @@ def create_directory(path):
     file_path = Path(path)
     directory = file_path.parent
     directory.mkdir(parents=True, exist_ok=True)
+
+
+extract_metrics("ppmi/60_70/swedd")
