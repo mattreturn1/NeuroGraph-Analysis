@@ -3,6 +3,9 @@ import pandas as pd
 from pathlib import Path
 import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 def compare_groups(directory_path, groups, output_path=None):
     """
@@ -104,7 +107,7 @@ def calculate_significant_differences(control_metrics, patient_metrics, metric_t
                 differences[column] = verify_significant_differences(control_metrics[column], patient_metrics[column])
     else:
         differences = pd.DataFrame(columns=["Node", "Closeness", "Clustering", "Degree"])
-        for node in range(116):
+        for node in range(1, 117):
             differences.loc[node - 1, "Node"] = node
             node_control_metrics = control_metrics[control_metrics["Node"] == node]
             node_patient_metrics = patient_metrics[patient_metrics["Node"] == node]
