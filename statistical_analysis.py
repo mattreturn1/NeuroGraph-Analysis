@@ -104,7 +104,7 @@ def calculate_significant_differences(control_metrics, patient_metrics, metric_t
                 differences[column] = verify_significant_differences(control_metrics[column], patient_metrics[column])
     else:
         differences = pd.DataFrame(columns=["Node", "Closeness", "Clustering", "Degree"])
-        for node in range(116):
+        for node in range(1,117):
             differences.loc[node - 1, "Node"] = node
             node_control_metrics = control_metrics[control_metrics["Node"] == node]
             node_patient_metrics = patient_metrics[patient_metrics["Node"] == node]
@@ -170,5 +170,6 @@ def are_variances_similar(first_group, second_group, test_type=levene):
 
     return p_value >= 0.05
 
-
+compare_groups("analysis/ppmi/60-", ["control", "pd", "prodromal", "swedd"], "analysis/ppmi/60-/comparison")
 compare_groups("analysis/ppmi/60_70", ["control", "pd", "prodromal", "swedd"], "analysis/ppmi/60_70/comparison")
+compare_groups("analysis/ppmi/70+", ["control", "pd", "prodromal", "swedd"], "analysis/ppmi/70+/comparison")
