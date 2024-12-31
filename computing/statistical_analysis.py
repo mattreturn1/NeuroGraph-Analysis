@@ -170,4 +170,4 @@ def are_variances_similar(first_group, second_group, test_type=levene):
 
     return p_value >= 0.05
 
-compare_groups("../computing/dataset/ppmi/60_70", ["control", "swedd"], "../computing/analysis/ppmi/60_70/comparison")
+compare_groups("../computing/dataset/ppmi/60_70", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/60_70/comparison")

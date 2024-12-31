@@ -219,7 +219,7 @@ def create_directory(path):
     directory = file_path.parent
     directory.mkdir(parents=True, exist_ok=True)
 
-
-extract_metrics("../dataset/ppmi/60_70/swedd")
 extract_metrics("../dataset/ppmi/60_70/control")
-
+extract_metrics("../dataset/ppmi/60_70/pd")
+extract_metrics("../dataset/ppmi/60_70/prodromal")
+extract_metrics("../dataset/ppmi/60_70/swedd")
