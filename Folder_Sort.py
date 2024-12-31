@@ -126,4 +126,6 @@ def get_age_group_ppmi(age, is_patient=False):
 
 
 # Esempio d'uso
-process_csv('PPMI_metadata.csv', 'ppmi')
+#process_csv('PPMI_metadata.csv', 'ppmi')
+#process_csv('ABIDE_metadata.csv', 'abide')
+
