@@ -106,5 +106,6 @@ def calculate_differences(control_metrics, patient_metrics):
 
     return differences
 
-
+compare_groups("../computing/dataset/ppmi/60-", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/60_70/comparison")
 compare_groups("../computing/dataset/ppmi/60_70", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/60_70/comparison")
+compare_groups("../computing/dataset/ppmi/70+", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/60_70/comparison")
