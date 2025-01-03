@@ -173,3 +173,8 @@ def are_variances_similar(first_group, second_group, test_type=levene):
 compare_groups("../computing/dataset/ppmi/60-", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/60-/comparison")
 compare_groups("../computing/dataset/ppmi/60_70", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/60_70/comparison")
 compare_groups("../computing/dataset/ppmi/70+", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/70+/comparison")
+
+compare_groups("../computing/dataset/abide/11-", ["control", "patient"], "../computing/analysis/abide/11-/comparison")
+compare_groups("../computing/dataset/abide/12_17", ["control", "patient"], "../computing/analysis/abide/12_17/comparison")
+compare_groups("../computing/dataset/abide/18_25", ["control", "patient"], "../computing/analysis/abide/18_25/comparison")
+compare_groups("../computing/dataset/abide/25+", ["control", "patient"], "../computing/analysis/abide/25+/comparison")
