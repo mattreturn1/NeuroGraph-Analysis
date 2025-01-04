@@ -218,7 +218,7 @@ def create_directory(path):
     file_path = Path(path)
     directory = file_path.parent
     directory.mkdir(parents=True, exist_ok=True)
-
+"""
 extract_metrics("../dataset/ppmi/60-/control")
 extract_metrics("../dataset/ppmi/60-/pd")
 extract_metrics("../dataset/ppmi/60-/prodromal")
@@ -231,3 +231,12 @@ extract_metrics("../dataset/ppmi/70+/control")
 extract_metrics("../dataset/ppmi/70+/pd")
 extract_metrics("../dataset/ppmi/70+/prodromal")
 extract_metrics("../dataset/ppmi/70+/swedd")
+"""
+extract_metrics("../dataset/abide/11-/control")
+extract_metrics("../dataset/abide/11-/patient")
+extract_metrics("../dataset/abide/12_17/control")
+extract_metrics("../dataset/abide/12_17/patient")
+extract_metrics("../dataset/abide/18_25/control")
+extract_metrics("../dataset/abide/18_25/patient")
+extract_metrics("../dataset/abide/25+/control")
+extract_metrics("../dataset/abide/25+/patient")

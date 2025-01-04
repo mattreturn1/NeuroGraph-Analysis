@@ -3,9 +3,6 @@ import pandas as pd
 from pathlib import Path
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 def compare_groups(directory_path, groups, output_path=None):
     """
@@ -107,7 +104,7 @@ def calculate_significant_differences(control_metrics, patient_metrics, metric_t
                 differences[column] = verify_significant_differences(control_metrics[column], patient_metrics[column])
     else:
         differences = pd.DataFrame(columns=["Node", "Closeness", "Clustering", "Degree"])
-        for node in range(1, 117):
+        for node in range(1,117):
             differences.loc[node - 1, "Node"] = node
             node_control_metrics = control_metrics[control_metrics["Node"] == node]
             node_patient_metrics = patient_metrics[patient_metrics["Node"] == node]
@@ -173,5 +170,11 @@ def are_variances_similar(first_group, second_group, test_type=levene):
 
     return p_value >= 0.05
 
+compare_groups("../computing/dataset/ppmi/60-", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/60-/comparison")
+compare_groups("../computing/dataset/ppmi/60_70", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/60_70/comparison")
+compare_groups("../computing/dataset/ppmi/70+", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/70+/comparison")
 
-compare_groups("analysis/ppmi/60_70", ["control", "pd", "prodromal", "swedd"], "analysis/ppmi/60_70/comparison")
+compare_groups("../computing/dataset/abide/11-", ["control", "patient"], "../computing/analysis/abide/11-/comparison")
+compare_groups("../computing/dataset/abide/12_17", ["control", "patient"], "../computing/analysis/abide/12_17/comparison")
+compare_groups("../computing/dataset/abide/18_25", ["control", "patient"], "../computing/analysis/abide/18_25/comparison")
+compare_groups("../computing/dataset/abide/25+", ["control", "patient"], "../computing/analysis/abide/25+/comparison")
