@@ -170,11 +170,12 @@ def are_variances_similar(first_group, second_group, test_type=levene):
 
     return p_value >= 0.05
 
-compare_groups("../computing/dataset/ppmi/60-", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/60-/comparison")
-compare_groups("../computing/dataset/ppmi/60_70", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/60_70/comparison")
-compare_groups("../computing/dataset/ppmi/70+", ["control", "pd", "prodromal", "swedd"], "../computing/analysis/ppmi/70+/comparison")
+path = Path()
+path = path.absolute()
+project_dir = path.parent
+abide_dir = project_dir / "analysis" / "abide"
 
-compare_groups("../computing/dataset/abide/11-", ["control", "patient"], "../computing/analysis/abide/11-/comparison")
-compare_groups("../computing/dataset/abide/12_17", ["control", "patient"], "../computing/analysis/abide/12_17/comparison")
-compare_groups("../computing/dataset/abide/18_25", ["control", "patient"], "../computing/analysis/abide/18_25/comparison")
-compare_groups("../computing/dataset/abide/25+", ["control", "patient"], "../computing/analysis/abide/25+/comparison")
+compare_groups(abide_dir / "11-", ["control", "patient"], project_dir / "analysis" / "abide" / "11-" / "comparison")
+compare_groups(abide_dir / "12_17", ["control", "patient"], project_dir / "analysis" / "abide" / "12_17" / "comparison")
+compare_groups(abide_dir / "18_25", ["control", "patient"], project_dir / "analysis" / "abide" / "18_25" / "comparison")
+compare_groups(abide_dir / "25+", ["control", "patient"], project_dir / "analysis" / "abide" / "25+" / "comparison")
