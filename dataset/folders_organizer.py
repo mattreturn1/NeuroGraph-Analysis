@@ -3,9 +3,9 @@ from pathlib import Path
 import pandas as pd
 import logging
 
-# Configura il logger
+# Configurate the logger
 logging.basicConfig(
-    level=logging.DEBUG,  # Cambia in DEBUG per messaggi più dettagliati
+    level=logging.DEBUG,  # Change in DEBUG for more details
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler("../preprocessing.log"),  # Salva in un file
@@ -13,7 +13,7 @@ logging.basicConfig(
     ]
 )
 
-
+# Move a specific file from a folder to another one
 def move_file_from_to(source_folder, destination_folder, filename):
     if not isinstance(filename, str) or not isinstance(source_folder, str):
         logging.warning("I parametri source_folder o filename non sono stringhe.")
@@ -34,7 +34,7 @@ def move_file_from_to(source_folder, destination_folder, filename):
     except Exception as e:
         logging.error(f"Errore durante lo spostamento del file '{filename}': {e}")
 
-
+# Search a specific folder using a subtring
 def find_folder_by_substring(substring, source):
     try:
         source_path = Path(source)
@@ -45,7 +45,7 @@ def find_folder_by_substring(substring, source):
     except Exception as e:
         logging.error(f"Errore nella ricerca della cartella: {e}")
 
-
+# Search a specific file inside a folder using a subtring
 def search_files_in_folder(folder_path):
     folder_path = Path(folder_path)
     for file in folder_path.rglob('*'):
@@ -53,14 +53,14 @@ def search_files_in_folder(folder_path):
             return file
     logging.warning(f"Nessun file trovato in '{folder_path}' contenente 'AAL116_correlation_matrix'.")
 
-
+# Main function that sort the needed files
 def process_csv(file_path, source):
     try:
-        # Carica i dati in un DataFrame
+        # Load the data in a DataFrame
         df = pd.read_csv(file_path)
         logging.info(f"Caricato CSV: {file_path}")
 
-        # Filtra solo le righe con 'fMRI' e separa i dati per controllo e malattia
+        # Filter the string containing fMRI and divide control and patient
         df = df[df['Modality'] == 'fMRI']
         df_control = df[df['Group'] == 'Control']
         df_patient = df[df['Group'] != 'Control']
@@ -104,7 +104,7 @@ def process_csv(file_path, source):
         logging.error(f"Errore durante il processo CSV '{file_path}': {e}")
 
 
-# Funzioni di supporto per determinare le fasce di età
+# Help function to filter the groups by age for ABIDE and PPMI
 def get_age_group_abide(age, is_patient=False):
     if age < 12:
         return '11-' if not is_patient else '11-'
@@ -125,7 +125,7 @@ def get_age_group_ppmi(age, is_patient=False):
         return '70+' if not is_patient else '70+'
 
 
-# Esempio d'uso
+# Example
 #process_csv('PPMI_metadata.csv', 'ppmi')
 #process_csv('ABIDE_metadata.csv', 'abide')
 
