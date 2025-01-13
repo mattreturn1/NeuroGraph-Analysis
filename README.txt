@@ -15,4 +15,6 @@ you need to download abide.zip and ppmi_v2.zip from the following link:
 
 https://auckland.figshare.com/articles/dataset/NeurIPS_2022_Datasets/21397377
 
-then rename the folder abide.zip to abide and ppmi_v2.zip to ppmi, and move them to the root folder of the project.
+Then extract the contents of the abide.zip folder and rename the extracted folder to abide.
+Similarly, extract the contents of the ppmi_v2.zip folder and rename the extracted folder to ppmi.
+Move both renamed folders to the root folder of the project.
