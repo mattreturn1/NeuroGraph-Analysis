@@ -84,7 +84,7 @@ def find_folder_by_substring(substring, source):
         for item in source_path.iterdir():
             if item.is_dir() and substring in item.name:
                 return item
-        logging.warning(f"Direcotry with substring '{substring}' not found in '{source}'.")
+        logging.warning(f"Directory with substring '{substring}' not found in '{source}'.")
     except Exception as exc:
         logging.error(f"Error during the searching of the directory: {exc}")
 
