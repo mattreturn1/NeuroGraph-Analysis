@@ -1,4 +1,4 @@
-import metrics_computator
+from computing import metrics_computator
 from pathlib import Path
 import logging
 import numpy as np
@@ -9,25 +9,26 @@ import pandas as pd
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def extract_metrics(directory_path):
+def extract_metrics(input_directory_path, output_directory_path):
     """
     Extract global and node-level metrics from brain network files in a directory.
     """
-    directory = Path(directory_path)
+    input_directory = Path(input_directory_path)
+    output_directory = Path(output_directory_path)
 
-    if not directory.exists() or not directory.is_dir():
-        logging.error(f"Directory {directory_path} does not exist or is not a directory.")
+    if not input_directory.exists() or not input_directory.is_dir():
+        logging.error(f"Directory {input_directory_path} does not exist or is not a directory.")
 
-    mat_files = list(directory.glob("*.mat"))
+    mat_files = list(input_directory.glob("*.mat"))
     if not mat_files:
-        logging.warning(f"No .mat files found in directory {directory_path}.")
+        logging.warning(f"No .mat files found in directory {input_directory_path}.")
 
     graph_metrics, node_metrics = initialize_metrics()
 
     for file in mat_files:
         process_file(file, graph_metrics, node_metrics)
 
-    save_results(graph_metrics, node_metrics, directory_path)
+    save_results(graph_metrics, node_metrics, output_directory)
 
 
 def initialize_metrics():
@@ -54,7 +55,7 @@ def process_file(file, graph_metrics, node_metrics):
     Process a single file to compute metrics and update the metrics containers.
     """
     try:
-        logging.info(f"Processing file: {file.name}")
+        logging.info(f"Processing file: {file.parent}/{file.name}")
         brain_network = from_matrix_to_network(file)
 
         closeness_centrality = metrics_computator.compute_closeness_centrality(brain_network)
@@ -73,7 +74,7 @@ def process_file(file, graph_metrics, node_metrics):
             node_metrics["degree"][i].append(degree_centrality[node])
 
     except Exception as exc:
-        logging.error(f"Error processing file {file.name}: {exc}")
+        logging.error(f"Error processing file {file.parent}/{file.name}: {exc}")
 
 
 def from_matrix_to_network(file_path):
@@ -92,21 +93,24 @@ def save_results(graph_metrics, node_metrics, directory):
     """
     Save metrics and statistics to CSV files.
     """
-    save_graph_metrics(graph_metrics, f"analysis/{directory}/metrics/graph_metrics.csv")
-    save_node_metrics(node_metrics, f"analysis/{directory}/metrics/node_metrics.csv")
+    create_directory(directory / "metrics")
+    create_directory(directory / "stats")
+
+    save_graph_metrics(graph_metrics, directory / "metrics" / "graph_metrics.csv")
+    save_node_metrics(node_metrics, directory / "metrics" / "node_metrics.csv")
 
     graph_statistics = compute_graph_statistics(graph_metrics)
     node_statistics = compute_node_statistics(node_metrics)
 
-    save_graph_statistics(graph_statistics, f"analysis/{directory}/stats/graph_statistics.csv")
-    save_node_statistics(node_statistics, f"analysis/{directory}/stats/node_statistics.csv")
+    save_graph_statistics(graph_statistics, directory / "stats" / "graph_statistics.csv")
+    save_node_statistics(node_statistics, directory / "stats" / "node_statistics.csv")
 
 
 def save_graph_metrics(graph_metrics, output_file):
     """
     Save graph metrics to a CSV file.
     """
-    create_directory(output_file)
+    #create_directory(output_file)
 
     data = []
     for graph in range(len(graph_metrics["closeness"])):
@@ -125,7 +129,7 @@ def save_node_metrics(node_metrics, output_file):
     """
     Save node-level metrics to a CSV file.
     """
-    create_directory(output_file)
+    #create_directory(output_file)
 
     data = []
     for node in range(116):
@@ -174,7 +178,7 @@ def save_graph_statistics(graph_statistics, output_file):
     """
     Save graph statistics to a CSV file.
     """
-    create_directory(output_file)
+    #create_directory(output_file)
 
     data = []
     for metric in graph_statistics.keys():
@@ -193,7 +197,7 @@ def save_node_statistics(node_statistics, output_file):
     """
     Save node-level statistics to a CSV file.
     """
-    create_directory(output_file)
+    #create_directory(output_file)
 
     data = []
     for node in range(116):
@@ -210,16 +214,16 @@ def save_node_statistics(node_statistics, output_file):
     df.to_csv(output_file, index=False)
 
 
-def create_directory(path):
+def create_directory(directory_path):
     """
     Ensure the directory for the given file path exists.
     If it doesn't exist, create it (including all necessary parent directories).
     """
-    file_path = Path(path)
-    directory = file_path.parent
+    directory = Path(directory_path)
     directory.mkdir(parents=True, exist_ok=True)
+    logging.info(f"Directory {directory_path} created.")
 
-
+"""
 path_ = Path()
 path_ = path_.absolute()
 project_dir = path_.parent
@@ -232,3 +236,4 @@ for age_group in abide_dir.iterdir():
 
     for group in age_group.iterdir():
         extract_metrics(group)
+"""

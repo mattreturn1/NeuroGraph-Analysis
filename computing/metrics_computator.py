@@ -33,29 +33,29 @@ def create_weighted_graph(matrix):
     """
     Create a NetworkX graph from the weighted adjacency matrix.
     """
-    G = nx.from_numpy_array(matrix)
-    return G
+    graph = nx.from_numpy_array(matrix)
+    return graph
 
 # Function to compute clustering coefficients
-def compute_clustering_coefficients(G):
+def compute_clustering_coefficients(graph):
     """
     Compute the weighted clustering coefficients for all nodes.
     """
-    clustering = nx.clustering(G, weight='weight')
+    clustering = nx.clustering(graph, weight='weight')
     return clustering
 
 # Function to compute closeness centrality
-def compute_closeness_centrality(G):
+def compute_closeness_centrality(graph):
     """
     Compute the closeness centrality for all nodes.
     """
-    closeness = nx.closeness_centrality(G, distance='weight')
+    closeness = nx.closeness_centrality(graph, distance='weight')
     return closeness
 
 # Function to compute degree centrality
-def compute_degree_centrality(G):
+def compute_degree_centrality(graph):
     """
     Compute the degree centrality for all nodes.
     """
-    degree_centrality = {node: sum(weight for _, _, weight in G.edges(node, data='weight')) for node in G.nodes()}
+    degree_centrality = {node: sum(weight for _, _, weight in graph.edges(node, data='weight')) for node in graph.nodes()}
     return degree_centrality

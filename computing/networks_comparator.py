@@ -105,13 +105,3 @@ def calculate_differences(control_metrics, patient_metrics):
             differences[column] = abs(patient_metrics[column] - control_metrics[column])
 
     return differences
-
-path = Path()
-path = path.absolute()
-project_dir = path.parent
-abide_dir = project_dir / "analysis" / "abide"
-
-compare_groups(abide_dir / "11-", ["control", "patient"], project_dir / "analysis" / "abide" / "11-" / "comparison")
-compare_groups(abide_dir / "12_17", ["control", "patient"], project_dir / "analysis" / "abide" / "12_17" / "comparison")
-compare_groups(abide_dir / "18_25", ["control", "patient"], project_dir / "analysis" / "abide" / "18_25" / "comparison")
-compare_groups(abide_dir / "25+", ["control", "patient"], project_dir / "analysis" / "abide" / "25+" / "comparison")
