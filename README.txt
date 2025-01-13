@@ -14,3 +14,5 @@ If you want to test the folders_organizer.py,
 you need to download abide.zip and ppmi_v2.zip from the following link:
 
 https://auckland.figshare.com/articles/dataset/NeurIPS_2022_Datasets/21397377
+
+then rename the folder abide.zip to abide and ppmi_v2.zip to ppmi, and move them to the root folder of the project.
