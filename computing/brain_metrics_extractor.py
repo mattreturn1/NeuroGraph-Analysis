@@ -4,7 +4,6 @@ import logging
 import numpy as np
 import pandas as pd
 
-
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -222,18 +221,3 @@ def create_directory(directory_path):
     directory = Path(directory_path)
     directory.mkdir(parents=True, exist_ok=True)
     logging.info(f"Directory {directory_path} created.")
-
-"""
-path_ = Path()
-path_ = path_.absolute()
-project_dir = path_.parent
-abide_dir = project_dir / "dataset" / "abide"
-
-for age_group in abide_dir.iterdir():
-    print(age_group)
-    if not age_group.is_dir():
-        continue
-
-    for group in age_group.iterdir():
-        extract_metrics(group)
-"""

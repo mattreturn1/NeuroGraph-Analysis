@@ -3,15 +3,8 @@ from pathlib import Path
 import pandas as pd
 import logging
 
-# Configurate the logger
-logging.basicConfig(
-    level=logging.DEBUG,  # Change in DEBUG for more details
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("../preprocessing.log"),  # Salva in un file
-        logging.StreamHandler()  # Mostra in console
-    ]
-)
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Main function that sort the needed files
 def process_csv(file_path, source):
@@ -60,18 +53,18 @@ def process_csv(file_path, source):
                 elif row["Group"] == "SWEDD":
                     move_file_from_to(str(folder), f"dataset/{source}/" + age_group + "/swedd", file.name)
 
-    except Exception as e:
-        logging.error(f"Errore durante il processo CSV '{file_path}': {e}")
+    except Exception as exc:
+        logging.error(f"Error during the process of CSV file '{file_path}': {exc}")
 
 # Move a specific file from a folder to another one
 def move_file_from_to(source_folder, destination_folder, filename):
     if not isinstance(filename, str) or not isinstance(source_folder, str):
-        logging.warning("I parametri source_folder o filename non sono stringhe.")
+        logging.warning("The parameters are not strings.")
         return
 
     source_file = Path(source_folder) / filename
     if not source_file.exists():
-        logging.warning(f"File '{filename}' non trovato nella cartella '{source_folder}'.")
+        logging.warning(f"File '{filename}' not found in the directory '{source_folder}'.")
         return
 
     destination_folder = Path(destination_folder)
@@ -80,9 +73,9 @@ def move_file_from_to(source_folder, destination_folder, filename):
 
     try:
         shutil.move(str(source_file), str(destination_file))
-        logging.info(f"File '{filename}' spostato in '{destination_folder}'.")
-    except Exception as e:
-        logging.error(f"Errore durante lo spostamento del file '{filename}': {e}")
+        logging.info(f"File '{filename}' move to '{destination_folder}'.")
+    except Exception as exc:
+        logging.error(f"Error during the repositioning of file '{filename}': {exc}")
 
 # Search a specific folder using a subtring
 def find_folder_by_substring(substring, source):
@@ -91,9 +84,9 @@ def find_folder_by_substring(substring, source):
         for item in source_path.iterdir():
             if item.is_dir() and substring in item.name:
                 return item
-        logging.warning(f"Nessuna cartella trovata con il sottostringa '{substring}' in '{source}'.")
-    except Exception as e:
-        logging.error(f"Errore nella ricerca della cartella: {e}")
+        logging.warning(f"Direcotry with substring '{substring}' not found in '{source}'.")
+    except Exception as exc:
+        logging.error(f"Error during the searching of the directory: {exc}")
 
 # Search a specific file inside a folder using a subtring
 def search_files_in_folder(folder_path):
@@ -101,9 +94,9 @@ def search_files_in_folder(folder_path):
     for file in folder_path.rglob('*'):
         if 'AAL116_correlation_matrix' in file.name:
             return file
-    logging.warning(f"Nessun file trovato in '{folder_path}' contenente 'AAL116_correlation_matrix'.")
+    logging.warning(f"File with substring 'AAL116_correlation_matrix' not found in '{folder_path}'.")
 
-# Help function to filter the groups by age for ABIDE and PPMI
+# Help function to filter the groups by age for ABIDE
 def get_age_group_abide(age):
     if age < 12:
         return '11-'
@@ -114,7 +107,7 @@ def get_age_group_abide(age):
     else:
         return '25+'
 
-
+# Help function to filter the groups by age for PPMI
 def get_age_group_ppmi(age):
     if age < 61:
         return '60-'

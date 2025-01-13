@@ -8,7 +8,6 @@ def load_and_process_matrix(file_path):
     Load the correlation matrix, apply linear transformation, and normalize weights.
     """
     data = loadmat(file_path)
-    # Assuming the correlation matrix is under the key 'connectivity' or 'correlation'
     matrix = None
     for key in data.keys():
         if isinstance(data[key], np.ndarray) and data[key].shape[0] == data[key].shape[1]:
