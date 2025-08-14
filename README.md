@@ -1,3 +1,21 @@
+# Brain Network Analysis Using Graph-Based Methods
+
+## Introduction
+
+In recent years, representing the brain as a network and analyzing it through **machine learning** and **graph analytics** has emerged as a powerful approach for studying its structure and function. Unlike traditional examination methods, this graph-based representation preserves both **structural** and **positional** information, offering unique insights into how different brain regions interact and influence each other.
+
+Such methods have proven particularly valuable in investigating **neurodegenerative and neurodevelopmental disorders** like **Parkinson’s disease** and **Autism**. These conditions often lead to measurable alterations in brain network topology, which can be quantified through specific **graph metrics** — for example, *closeness centrality*, *node degree*, and *clustering coefficient*.
+
+This project aims to evaluate whether graph metrics learned in the *Learning from Networks* course can help **distinguish brain networks** of individuals with Parkinson’s disease or Autism from those of healthy controls.  
+
+We use data from the publicly available dataset **A Collection of Brain Network Datasets** [2], focusing specifically on:
+- **Autism Brain Imaging Data Exchange (ABIDE)**
+- **Parkinson’s Progression Markers Initiative (PPMI)**  
+
+Brain networks are constructed from **correlation matrices** generated using the *Automated Anatomical Labeling* (**AAL**) parcellation algorithm [3], which divides the brain into **116 distinct regions**. Pearson’s correlation coefficient [4] is used to measure the connectivity between these regions, resulting in a **116×116 adjacency matrix** (13,456 undirected edges).  
+
+These datasets cover thousands of subjects with diverse **age** and **sex** distributions, enabling a broad exploration of demographic effects on brain network structures.
+
 ## Installation of the dependencies
 
 1. Clone the repository:
